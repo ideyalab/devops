@@ -63,10 +63,7 @@ variable "app_port" {
   description = "app port"
 }
 
-variable "aws_default_region" {
-  type = string
-  default = "us-west-1"
-}
+variable "aws_default_region" {}
 
 variable "availability_zones" {
   type  = list(string)
