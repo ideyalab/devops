@@ -67,6 +67,5 @@ variable "aws_default_region" {}
 
 variable "availability_zones" {
   type  = list(string)
-  default = "us-west-1a"
   description = "List of availability zones for the selected region"
 }
