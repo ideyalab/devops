@@ -34,7 +34,7 @@ resource "aws_subnet" "conductor_private_subnet" {
     availability_zone = element(var.availability_zones, count.index)
 
     tags = {
-        Name = ${var.private_subnet_tag_name}-${var.environment}
+        Name = "${var.private_subnet_tag_name}-${var.environment}"
     }    
 }
 resource "aws_subnet" "conductor_private_subnet-db" {
@@ -44,7 +44,7 @@ resource "aws_subnet" "conductor_private_subnet-db" {
     availability_zone = element(var.availability_zones, count.index)
 
     tags = {
-        Name = ${var.private_subnet_tag_name}-db-${var.environment}
+        Name = "${var.private_subnet_tag_name}-db-${var.environment}"
     }    
 }
 resource "aws_internet_gateway" "internet_gateway" {
