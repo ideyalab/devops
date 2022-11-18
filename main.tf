@@ -35,13 +35,13 @@ resource "aws_eip" "elastic_ip" {
   count = var.number_of_public_subnets
   vpc = true
   tags = {
-    Name = "elastic_ip-${count.index + 1}"
+    Name = "elastic_ip-${count.index + 2}"
   }
 }
 
 resource "aws_nat_gateway" "conductor_nat" {
     allocation_id = aws_eip.elastic_ip[count.index].id
-  count = var.number_of_private_subnets
+  count = var.number_of_public_subnets
   subnet_id = aws_subnet.conductor_public_subnet[count.index].id
   tags = {
     Name = "nat_gateway-${var.environment}"
