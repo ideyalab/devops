@@ -60,7 +60,7 @@ resource "aws_nat_gateway" "conductor_nat" {
 resource "aws_nat_gateway" "conductor_nat-db" {
     allocation_id = aws_eip.elastic_ip[count.index].id
   count = var.number_of_public_subnets
-  subnet_id = aws_subnet.conductor_public_subnet-db[count.index].id
+  subnet_id = aws_subnet.conductor_public_subnet[count.index].id
   tags = {
     Name = "nat_gateway-db-${var.environment}"
   }
