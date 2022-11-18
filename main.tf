@@ -78,7 +78,7 @@ resource "aws_route" "nat_private_subnet_route" {
   count = var.number_of_private_subnets
   route_table_id = aws_route_table.private_route_table[count.index].id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id = aws_nat_gateway.conductor_nat.id
+  nat_gateway_id = aws_nat_gateway.conductor_nat[count.index].id
 }
 resource "aws_security_group" "conductor-sg" {
     description = "conductor_secutity group"
