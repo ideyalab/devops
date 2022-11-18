@@ -13,7 +13,7 @@ resource "aws_subnet" "conductor_public_subnet" {
     vpc_id = aws_vpc.conductor_vpc.id
     cidr_block = element(var.public_subnet_cidr_blocks, count.index)
     availability_zone = element(var.availability_zones, count.index)
-    tags {
+    tags = {
         Name = "${var.public_subnet_tag_name}-${var.environment}"
     }         
 }
@@ -23,7 +23,7 @@ resource "aws_subnet" "conductor_private_subnet" {
     cidr_block = element(var.private_subnet_cidr_blocks, count.index)
     availability_zone = element(var.availability_zones, count.index)
 
-    tags {
+    tags = {
         Name = "${var.private_subnet_tag_name}-${var.environment}"
     }    
 }
@@ -87,14 +87,14 @@ resource "aws_security_group" "conductor-sg" {
         description = "to hhtps connection"
         from_port = 443
         to_port =  443
-        protocal = "tcp"
+        protocol = "tcp"
         cidr_block = var.vpc_cidr_block
     }
     ingress {
         description= "Http connection"
         from_port = 80
         to_port = 80
-        protocal = "tcp"
+        protocol = "tcp"
         cidr_block= ["0.0.0.0/0"]
         ipv6_cidr_blocks = ["::/0"]
 }
@@ -105,7 +105,7 @@ resource "aws_security_group" "conductor-sg" {
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
-  tags {
+  tags = {
     Name = "${var.environment}-sg"
   }
 }
