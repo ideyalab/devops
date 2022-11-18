@@ -57,7 +57,7 @@ resource "aws_nat_gateway" "conductor_nat" {
     Name = "nat_gateway-${var.environment}"
   }
 }
-resource "aws_nat_gateway" "conductor_nat" {
+resource "aws_nat_gateway" "conductor_nat-db" {
     allocation_id = aws_eip.elastic_ip[count.index].id
   count = var.number_of_public_subnets
   subnet_id = aws_subnet.conductor_public_subnet-db[count.index].id
@@ -92,7 +92,7 @@ resource "aws_route_table_association" "nat_private_subnet_assoc" {
   route_table_id = aws_route_table.private_route_table[count.index].id
   subnet_id = aws_subnet.conductor_private_subnet[count.index].id
 }
-resource "aws_route_table_association" "nat_private_subnet_assoc" {
+resource "aws_route_table_association" "nat_private_subnet_assoc-db" {
   count = var.number_of_private_subnets
   route_table_id = aws_route_table.private_route_table-db[count.index].id
   subnet_id = aws_subnet.conductor_private_subnet-db[count.index].id
@@ -109,7 +109,7 @@ resource "aws_route" "nat_private_subnet_route" {
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id = aws_nat_gateway.conductor_nat[count.index].id
 }
-resource "aws_route" "nat_private_subnet_route" {
+resource "aws_route" "nat_private_subnet_route-db" {
   count = var.number_of_private_subnets
   route_table_id = aws_route_table.private_route_table[count.index].id
   destination_cidr_block = "0.0.0.0/0"
