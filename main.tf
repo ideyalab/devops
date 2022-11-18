@@ -88,7 +88,7 @@ resource "aws_security_group" "conductor-sg" {
         from_port = 443
         to_port =  443
         protocol = "tcp"
-        cidr_blocks = var.vpc_cidr_block
+        cidr_blocks = aws_vpc.conductor_vpc.cidr_block.id
     }
     ingress {
         description= "Http connection"
