@@ -8,6 +8,16 @@ resource "aws_vpc" "conductor_vpc" {
     }
 }
 
+resource "aws_vpc" "conductor_vpc" {
+    cidr_block       =  var.vpc_cidr_block
+    enable_dns_support = true
+    enable_dns_hostnames = true
+
+    tags = {
+        Name = "${var.vpc_tag_name}-${var.environment}"
+    }
+}
+
 resource "aws_subnet" "conductor_public_subnet" {
     count =  var.number_of_public_subnets
     vpc_id = aws_vpc.conductor_vpc.id
@@ -24,7 +34,17 @@ resource "aws_subnet" "conductor_private_subnet" {
     availability_zone = element(var.availability_zones, count.index)
 
     tags = {
-        Name = "${var.private_subnet_tag_name}-${var.environment}"
+        Name = ${var.private_subnet_tag_name}-${var.environment}
+    }    
+}
+resource "aws_subnet" "conductor_private_subnet-db" {
+    count = var.number_of_private_subnets-db
+    vpc_id =  aws_vpc.conductor_vpc.id
+    cidr_block = element(var.private_subnet_cidr_blocks-db, count.index)
+    availability_zone = element(var.availability_zones, count.index)
+
+    tags = {
+        Name = ${var.private_subnet_tag_name}-db-${var.environment}
     }    
 }
 resource "aws_internet_gateway" "internet_gateway" {
@@ -47,6 +67,14 @@ resource "aws_nat_gateway" "conductor_nat" {
     Name = "nat_gateway-${var.environment}"
   }
 }
+resource "aws_nat_gateway" "conductor_nat" {
+    allocation_id = aws_eip.elastic_ip[count.index].id
+  count = var.number_of_public_subnets
+  subnet_id = aws_subnet.conductor_public_subnet-db[count.index].id
+  tags = {
+    Name = "nat_gateway-db-${var.environment}"
+  }
+}
 
 resource "aws_route_table" "public_route_table" {
   vpc_id = aws_vpc.conductor_vpc.id
@@ -55,12 +83,6 @@ resource "aws_route_table" "public_route_table" {
     Name = "${aws_subnet.conductor_private_subnet[count.index].availability_zone}-route-table-public-${var.environment}"
   }
 }
-resource "aws_route_table_association" "igw_subnet_assoc" {
-  count = var.number_of_public_subnets
-  route_table_id = aws_route_table.public_route_table[count.index].id
-  subnet_id = aws_subnet.conductor_public_subnet[count.index].id
-
-}
 resource "aws_route_table" "private_route_table" {
   vpc_id = aws_vpc.conductor_vpc.id
   count = var.number_of_private_subnets
@@ -68,11 +90,22 @@ resource "aws_route_table" "private_route_table" {
     Name = "${aws_subnet.conductor_private_subnet[count.index].availability_zone}-route-table-NAT-${var.environment}"
   }
 }
+resource "aws_route_table" "private_route_table-db" {
+  vpc_id = aws_vpc.conductor_vpc.id
+  count = var.number_of_private_subnets-db
+  tags = {
+    Name = "${aws_subnet.conductor_private_subnet-db[count.index].availability_zone}-route-table-NAT-${var.environment}"
+  }
+}
 resource "aws_route_table_association" "nat_private_subnet_assoc" {
   count = var.number_of_private_subnets
   route_table_id = aws_route_table.private_route_table[count.index].id
   subnet_id = aws_subnet.conductor_private_subnet[count.index].id
-
+}
+resource "aws_route_table_association" "nat_private_subnet_assoc" {
+  count = var.number_of_private_subnets
+  route_table_id = aws_route_table.private_route_table-db[count.index].id
+  subnet_id = aws_subnet.conductor_private_subnet-db[count.index].id
 }
 resource "aws_route" "ig_public_subnet_route" {
   count = var.number_of_public_subnets
@@ -86,6 +119,12 @@ resource "aws_route" "nat_private_subnet_route" {
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id = aws_nat_gateway.conductor_nat[count.index].id
 }
+resource "aws_route" "nat_private_subnet_route" {
+  count = var.number_of_private_subnets
+  route_table_id = aws_route_table.private_route_table[count.index].id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id = aws_nat_gateway.conductor_nat-db[count.index].id
+}
 resource "aws_security_group" "conductor-sg" {
     description = "conductor_secutity group"
     vpc_id = aws_vpc.conductor_vpc.id
@@ -93,15 +132,16 @@ resource "aws_security_group" "conductor-sg" {
         description = "to hhtps connection"
         from_port = 443
         to_port =  443
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
+        protocal = "tcp"
+        cidr_block = ["0.0.0.0/0"]
+	ipv6_cidr_blocks = ["::/0"]
     }
     ingress {
         description= "Http connection"
         from_port = 80
         to_port = 80
-        protocol = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
+        protocal = "tcp"
+        cidr_block= [0.0.0.0/0]
         ipv6_cidr_blocks = ["::/0"]
 }
     egress {
@@ -111,8 +151,9 @@ resource "aws_security_group" "conductor-sg" {
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
-  tags = {
+  tags {
     Name = "${var.environment}-sg"
   }
 }
+
 
