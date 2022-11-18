@@ -36,26 +36,14 @@ variable "vpc_cidr_block" {
 
 variable "private_subnet_cidr_blocks" {
   type        = list(string)
-  default     = ["10.0.0.0/24", "10.0.4.0/24"]
+  default     = ["10.0.3.0/24", "10.0.4.0/24"]
   description = "CIDR block range for the private subnets"
 }
 
 variable "public_subnet_cidr_blocks" {
   type        = list(string)
-  default     = ["10.0.8.0/24", "10.0.12.0/24"]
+  default     = ["10.0.1.0/24", "10.0.2.0/24"]
   description = "CIDR block range for the public subnets"
-}
-
-variable "security_group_lb_name" {
-  type        = string
-  default     = "alb-sg"
-  description = "Load Balancer security group name"
-}
-
-variable "security_group_lb_description" {
-  type        = string
-  default     = "controls access to the ALB"
-  description = "Load Balancer security group description"
 }
 
 variable "app_port" {
@@ -67,6 +55,14 @@ variable "aws_default_region" {}
 
 variable "availability_zones" {
   type  = list(string)
-  default = ["us-west-1a", "us-west-1b" ]
   description = "List of availability zones for the selected region"
 }
+variable "number_of_private_subnets-db"{
+  type  = number
+  default = 2
+  description = "number of subnets for DB"
+}
+variable "private_subnet_cidr_blocks-db"{
+  type = list(string)
+  default = ["10.0.5.0/24", "10.0.6.0/24"]
+  }
