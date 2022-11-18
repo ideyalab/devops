@@ -55,6 +55,12 @@ resource "aws_route_table" "public_route_table" {
     Name = "${aws_subnet.conductor_private_subnet[count.index].availability_zone}-route-table-public-${var.environment}"
   }
 }
+resource "aws_route_table_association" "igw_subnet_assoc" {
+  count = var.number_of_public_subnets
+  route_table_id = aws_route_table.public_route_table[count.index].id
+  subnet_id = aws_subnet.conductor_public_subnet[count.index].id
+
+}
 resource "aws_route_table" "private_route_table" {
   vpc_id = aws_vpc.conductor_vpc.id
   count = var.number_of_private_subnets
@@ -75,7 +81,7 @@ resource "aws_route" "ig_public_subnet_route" {
   gateway_id = aws_internet_gateway.internet_gateway.id
 }
 resource "aws_route" "nat_private_subnet_route" {
-  count = var.number_of_public_subnets
+  count = var.number_of_private_subnets
   route_table_id = aws_route_table.private_route_table[count.index].id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id = aws_nat_gateway.conductor_nat[count.index].id
