@@ -115,34 +115,5 @@ resource "aws_route" "nat_private_subnet_route-db" {
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id = aws_nat_gateway.conductor_nat-db[count.index].id
 }
-resource "aws_security_group" "conductor-sg" {
-    description = "conductor_secutity group"
-    vpc_id = aws_vpc.conductor_vpc.id
-    ingress {
-        description = "to hhtps connection"
-        from_port = 443
-        to_port =  443
-        protocal = "tcp"
-        cidr_block = ["0.0.0.0/0"]
-	ipv6_cidr_blocks = ["::/0"]
-    }
-    ingress {
-        description= "Http connection"
-        from_port = 80
-        to_port = 80
-        protocal = "tcp"
-        cidr_block= ["0.0.0.0/0"]
-        ipv6_cidr_blocks = ["::/0"]
-}
-    egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-  tags {
-    Name = "${var.environment}-sg"
-  }
-}
+
 
