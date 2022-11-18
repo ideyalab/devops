@@ -8,16 +8,6 @@ resource "aws_vpc" "conductor_vpc" {
     }
 }
 
-resource "aws_vpc" "conductor_vpc" {
-    cidr_block       =  var.vpc_cidr_block
-    enable_dns_support = true
-    enable_dns_hostnames = true
-
-    tags = {
-        Name = "${var.vpc_tag_name}-${var.environment}"
-    }
-}
-
 resource "aws_subnet" "conductor_public_subnet" {
     count =  var.number_of_public_subnets
     vpc_id = aws_vpc.conductor_vpc.id
@@ -67,7 +57,7 @@ resource "aws_nat_gateway" "conductor_nat" {
     Name = "nat_gateway-${var.environment}"
   }
 }
-resource "aws_nat_gateway" "conductor_nat-db" {
+resource "aws_nat_gateway" "conductor_nat" {
     allocation_id = aws_eip.elastic_ip[count.index].id
   count = var.number_of_public_subnets
   subnet_id = aws_subnet.conductor_public_subnet-db[count.index].id
@@ -102,8 +92,8 @@ resource "aws_route_table_association" "nat_private_subnet_assoc" {
   route_table_id = aws_route_table.private_route_table[count.index].id
   subnet_id = aws_subnet.conductor_private_subnet[count.index].id
 }
-resource "aws_route_table_association" "nat_private_subnet_assoc-db" {
-  count = var.number_of_private_subnets-db
+resource "aws_route_table_association" "nat_private_subnet_assoc" {
+  count = var.number_of_private_subnets
   route_table_id = aws_route_table.private_route_table-db[count.index].id
   subnet_id = aws_subnet.conductor_private_subnet-db[count.index].id
 }
@@ -155,5 +145,4 @@ resource "aws_security_group" "conductor-sg" {
     Name = "${var.environment}-sg"
   }
 }
-
 
