@@ -26,5 +26,5 @@ output "private_subnet_cidr_blocks" {
   value = aws_subnet.conductor_private_subnet.*.cidr_block
 }
 output "security_group_name" {
-    value = aws_security_group.tags.Name
+    value = aws_security_group.conductor-sg.tags.Name
 }
